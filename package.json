@@ -1,0 +1,30 @@
+{
+  "name": "legasi---ladies-empowerment-goals-and-support-initiative",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "sudo npm run dev",
+    "project-build": "sudo npm run build",
+    "dev": "vite",
+    "build": "rimraf dist && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "jwt-decode": "^4.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.7.1",
+    "rimraf": "^6.0.1",
+    "sweetalert2": "^11.6.13"
+  },
+  "devDependencies": {
+    "@types/jwt-decode": "^2.2.1",
+    "@types/node": "^22.17.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2"
+  }
+}
