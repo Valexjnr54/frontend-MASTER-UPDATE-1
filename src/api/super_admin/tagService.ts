@@ -1,24 +1,18 @@
 import axios from 'axios';
-import { Project } from '../../types';
+import { Tag } from '../../types';
 import apiConfig from '../../config/api';
 import { showErrorAlert } from '@/src/utils/alerts';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-export interface CreateProjectData {
-  project_name: string;
-  project_manager_id: number;
-  start_date: string;
-  end_date: string;
-  description?: string;
-  target_entry: number;
-  task: string;
+export interface CreateTagData {
+  name: string;
 }
 
-export const fetchProjects = async (): Promise<Project[]> => {
+export const fetchTags = async (): Promise<Tag[]> => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.ALL_PROJECT}`,
+    const response = await axios.get(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.ALL_TAGS}`,
         {
             timeout: apiConfig.TIMEOUT,
             headers: {
@@ -29,15 +23,15 @@ export const fetchProjects = async (): Promise<Project[]> => {
     );
     return response.data.data;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error('Error fetching Tags:', error);
     throw error;
   }
 };
 
-export const createProject = async (projectData: CreateProjectData): Promise<Project> => {
+export const createTag = async (tagData: CreateTagData): Promise<Tag> => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.post(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.CREATE_PROJECT}`, projectData,
+    const response = await axios.post(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.CREATE_TAG}`, tagData,
         {
             timeout: apiConfig.TIMEOUT,
             headers: {
@@ -67,10 +61,10 @@ export const createProject = async (projectData: CreateProjectData): Promise<Pro
   }
 };
 
-export const updateProject = async (projectId: number, projectData: Partial<Project>): Promise<Project> => {
+export const updateTag = async (TagId: number, TagData: Partial<Tag>): Promise<Tag> => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.put(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.UPDATE_PROJECT}?project_id=${projectId}`, projectData,
+    const response = await axios.put(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.UPDATE_TAG}?tag_id=${TagId}`, TagData,
         {
             timeout: apiConfig.TIMEOUT,
             headers: {
@@ -89,9 +83,9 @@ export const updateProject = async (projectId: number, projectData: Partial<Proj
 
     throw new Error('Invalid API response format.');
   } catch (error) {
-    console.error('Project creation error:', error);
+    console.error('Tag creation error:', error);
 
-    let message = 'Failed to create project. Please try again.';
+    let message = 'Failed to create Tag. Please try again.';
     if (axios.isAxiosError(error)) {
       message = error.response?.data?.message || message;
     }
@@ -100,11 +94,10 @@ export const updateProject = async (projectId: number, projectData: Partial<Proj
   }
 };
 
-export const deleteProject = async (projectId: number): Promise<void> => {
-  // await axios.delete(`${API_BASE_URL}/projects/${projectId}`);
+export const deleteTag = async (TagId: number): Promise<void> => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.delete(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.DELETE_PROJECT}?project_id=${projectId}`,
+    const response = await axios.delete(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.ADMIN.DELETE_TAG}?tag_id=${TagId}`,
         {
             timeout: apiConfig.TIMEOUT,
             headers: {
@@ -123,9 +116,9 @@ export const deleteProject = async (projectId: number): Promise<void> => {
 
     throw new Error('Invalid API response format.');
   } catch (error) {
-    console.error('Project creation error:', error);
+    console.error('Tag creation error:', error);
 
-    let message = 'Failed to create project. Please try again.';
+    let message = 'Failed to create Tag. Please try again.';
     if (axios.isAxiosError(error)) {
       message = error.response?.data?.message || message;
     }

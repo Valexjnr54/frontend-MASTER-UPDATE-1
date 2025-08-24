@@ -7,10 +7,14 @@ import { showErrorAlert, showSuccessAlert } from '../utils/alerts';
 import ProjectsView from './super_admin/ProjectsView';
 import ManagersView from './super_admin/ManagersView';
 import DashboardView from './super_admin/DashboardView';
-import SettingsView from './super_admin/SettingsView';
+import BlogsView from './super_admin/BlogsView';
 import StatCard from './super_admin/StatCard';
 import Sidebar from './super_admin/Sidebar';
 import DataView from './super_admin/DataView';
+import CommentsView from './super_admin/CommentsView';
+import CategoriesView from './super_admin/CategoriesView';
+import TagsView from './super_admin/TagsView';
+import DonationsView from './super_admin/DonationsView';
 
 // Types
 type StatCardProps = {
@@ -128,18 +132,20 @@ useEffect(() => {
         return <ManagersView managers={managers} onManagerAdded={handleManagerAdded} />;
       case 'data':
         return <DataView />;
-      case 'settings':
-        return <SettingsView />;
+      case 'blogs':
+        return <BlogsView />;
+      case 'comments':
+        return <CommentsView />;
+      case 'categories':
+        return <CategoriesView />;
+      case 'tags':
+        return <TagsView />;
+      case 'donations':
+        return <DonationsView />
       case 'dashboard':
       default:
         return (
           <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-              <StatCard icon="fas fa-project-diagram" value={projects.length.toString()} label="Active Projects" />
-              <StatCard icon="fas fa-users" value={managers.length.toString()} label="Project Managers" />
-              {/* <StatCard icon="fas fa-database" value={allData.length.toString()} label="Data Entries" /> */}
-              {/* <StatCard icon="fas fa-check-circle" value="78%" label="Completion Rate" /> */}
-            </div>
             <DashboardView />
           </div>
         );

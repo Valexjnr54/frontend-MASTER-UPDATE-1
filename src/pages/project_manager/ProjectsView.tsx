@@ -1,6 +1,18 @@
 import { fetchProject } from '@/src/api/project_manager/ProjectService';
 import { Project } from '@/src/types';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  ColumnDef,
+  flexRender,
+  SortingState,
+  PaginationState,
+  ColumnFiltersState,
+} from '@tanstack/react-table';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -33,45 +45,90 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-  // const openModal = async (projectId: number) => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   try {
-  //     const projectData = await fetchProject(projectId);
-  //     // Handle array response (take first item) or direct project object
-  //     const project = Array.isArray(projectData) ? projectData[0] : projectData;
-  //     if (!project) {
-  //       throw new Error('Project data not found');
-  //     }
-  //     setSelectedProject(project);
-  //     setIsModalOpen(true);
-  //   } catch (err) {
-  //     setError(err.message || 'Failed to load project details');
-  //     console.error('Error fetching project:', err);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  // Define columns for the table
+  const columns = useMemo<ColumnDef<Project>[]>(
+    () => [
+      {
+        accessorKey: 'project_name',
+        header: 'Project Name',
+        cell: info => info.getValue(),
+      },
+      {
+        accessorKey: 'start_date',
+        header: 'Start Date',
+        cell: info => new Date(info.getValue() as string).toLocaleDateString(),
+      },
+      {
+        accessorKey: 'end_date',
+        header: 'End Date',
+        cell: info => new Date(info.getValue() as string).toLocaleDateString(),
+      },
+      {
+        accessorKey: 'target_entry',
+        header: 'Target',
+        cell: info => info.getValue(),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const project = row.original;
+          return (
+            <button 
+              className={`text-purple-600 hover:text-purple-800 text-sm font-semibold flex items-center ${
+                isLoading && selectedProject?.id === project.id ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              onClick={() => {
+                setSelectedProject({ id: project.id } as Project);
+                openModal(project.id);
+              }}
+              disabled={isLoading && selectedProject?.id === project.id}
+            >
+              {isLoading && selectedProject?.id === project.id ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : 'View'}
+            </button>
+          );
+        },
+      },
+    ],
+    [isLoading, selectedProject]
+  );
 
-  // const openModal = async (projectId: number) => {
-  //   setIsLoading(true);  // This should immediately trigger the spinner
-  //   setError(null);
-  //   try {
-  //     const projectData = await fetchProject(projectId);
-  //     const project = Array.isArray(projectData) ? projectData[0] : projectData;
-  //     if (!project) {
-  //       throw new Error('Project data not found');
-  //     }
-  //     setSelectedProject(project);
-  //     setIsModalOpen(true);
-  //   } catch (err) {
-  //     setError(err.message || 'Failed to load project details');
-  //     console.error('Error fetching project:', err);
-  //   } finally {
-  //     setIsLoading(false);  // This should turn off the spinner
-  //   }
-  // };
+  // Create the table instance
+  const table = useReactTable({
+    data: projects,
+    columns,
+    state: {
+      sorting,
+      pagination,
+      columnFilters,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    pageCount: Math.ceil(projects.length / pagination.pageSize),
+  });
 
   const openModal = async (projectId: number) => {
     console.log('1. Setting loading true');
@@ -121,54 +178,113 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
           </button>
         </div>
         
+        {/* Search Input */}
+        <div className="mb-4">
+          <div className="relative max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search projects..."
+              value={globalFilter ?? ''}
+              onChange={e => setGlobalFilter(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 block w-full sm:text-sm"
+            />
+          </div>
+        </div>
+        
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-100 text-gray-600">
-                <th className="p-3">Project Name</th>
-                <th className="p-3">Start Date</th>
-                <th className="p-3">End Date</th>
-                <th className="p-3">Target</th>
-                <th className="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map(project => (
-                <tr key={project.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 font-medium">{project.project_name}</td>
-                  <td className="p-3">{new Date(project.start_date).toLocaleDateString()}</td>
-                  <td className="p-3">{new Date(project.end_date).toLocaleDateString()}</td>
-                  <td className="p-3">{project.target_entry}</td>
-                  <td className="p-3">
-                    <button 
-                      className={`text-purple-600 hover:text-purple-800 text-sm font-semibold flex items-center ${
-                        isLoading && selectedProject?.id === project.id ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                      onClick={() => {
-                        setSelectedProject({ id: project.id } as Project); // Set temporary project
-                        openModal(project.id);
-                      }}
-                      disabled={isLoading && selectedProject?.id === project.id}
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id} className="bg-gray-100 text-gray-600">
+                  {headerGroup.headers.map(header => (
+                    <th 
+                      key={header.id} 
+                      className="p-3 cursor-pointer select-none"
+                      onClick={header.column.getToggleSortingHandler()}
                     >
-                      {isLoading && selectedProject?.id === project.id ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Loading...
-                        </>
-                      ) : 'View'}
-                    </button>
-                  </td>
+                      <div className="flex items-center">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {{
+                          asc: ' 🔼',
+                          desc: ' 🔽',
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    </th>
+                  ))}
                 </tr>
               ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map(row => (
+                  <tr key={row.id} className="border-b hover:bg-gray-50">
+                    {row.getVisibleCells().map(cell => (
+                      <td key={cell.id} className="p-3">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={columns.length} className="p-4 text-center text-gray-500">
+                    No projects found matching your search.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+          
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1 text-sm text-gray-700">
+                <div>Page</div>
+                <strong>
+                  {table.getState().pagination.pageIndex + 1} of{' '}
+                  {table.getPageCount()}
+                </strong>
+              </span>
+              <select
+                className="border rounded p-1 text-sm"
+                value={table.getState().pagination.pageSize}
+                onChange={e => {
+                  table.setPageSize(Number(e.target.value));
+                }}
+              >
+                {[5, 10, 20, 30, 40, 50].map(pageSize => (
+                  <option key={pageSize} value={pageSize}>
+                    Show {pageSize}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </button>
+              <button
+                className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Project Details Modal */}
+      {/* Project Details Modal - Remaining code unchanged */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -223,10 +339,6 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
                         </div>
                       </div>
                       <div className="space-y-4">
-                        {/* <div>
-                          <p className="text-sm text-gray-500">Project ID</p>
-                          <p className="font-medium">{selectedProject.id}</p>
-                        </div> */}
                         <div>
                           <p className="text-sm text-gray-500">End Date</p>
                           <p className="font-medium">
@@ -257,8 +369,6 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
                             <tr>
                               <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                               <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                              {/* <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted By</th>
-                              <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th> */}
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -270,12 +380,6 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
                                 <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
                                   {entry.location}
                                 </td>
-                                {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                  {new Date(entry.createdAt).toLocaleDateString() || 'N/A'}
-                                </td>
-                                <td className="px-3 py-4 text-sm text-gray-500">
-                                  {entry.metadata || 'None'}
-                                </td> */}
                               </tr>
                             ))}
                           </tbody>

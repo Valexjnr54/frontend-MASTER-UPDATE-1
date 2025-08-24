@@ -6,7 +6,7 @@ const navLinks: NavLink[] = [
     { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
     { label: 'Activities', href: '/activities' },
-    { label: 'Blog', href: '/blog/uromi-killings' },
+    { label: 'Blog', href: '/blogs' },
     { label: 'Volunteer', href: '/volunteer' },
     {
         label: 'Resources',

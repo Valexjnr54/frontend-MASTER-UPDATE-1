@@ -44,6 +44,7 @@ export interface Project {
   project_name: string;
   project_manager_id: number;
   project_manager_name?: string;
+  task: string;
   start_date: string;
   end_date: string;
   target_entry: number;
@@ -113,4 +114,34 @@ export interface MediaFile {
   cloudinaryUrl?: string;
   uploading: boolean;
   error?: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Blog {
+  id: number;
+  title: string;
+  content: string;
+  published: boolean;
+  cover_image?: string;
+  category_id: number;
+  tag_id: number;
+  slug: string;
+  createdAt: Date;
+  updatedAt: Date;
+  category?: Category;
+  tag?: Tag;
+  comments?: Comment[];
 }

@@ -1,9 +1,31 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import apiConfig from '../config/api';
 
 interface DonateModalProps {
     isOpen: boolean;
     onClose: () => void;
+}
+
+interface DonationResponse {
+  message: string;
+  data: {
+    donation: {
+      id: number;
+      amount: number;
+      type: string;
+      currency: string;
+      fullName: string;
+      email: string;
+      reference: string;
+      status: string;
+      paymentUrl: string | null;
+      paymentData: any;
+      createdAt: string;
+      updatedAt: string;
+    };
+    paymentUrl: string;
+  };
 }
 
 const DONATION_TYPES = [
@@ -19,6 +41,10 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose }) => {
     const [donationType, setDonationType] = useState('general');
     const [amount, setAmount] = useState(50000);
     const [customAmount, setCustomAmount] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent) => {
@@ -42,11 +68,46 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose }) => {
         }
     };
     
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const formattedAmount = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
-        alert(`Thank you for your donation of ${formattedAmount} to support our ${donationType} program!`);
-        onClose();
+        setIsProcessing(true);
+        
+        try {
+            const response = await fetch(`${apiConfig.BASE_URL}${apiConfig.ENDPOINTS.MISC.DONATION}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount,
+                    type: donationType,
+                    fullName,
+                    email,
+                }),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to initialize donation');
+            }
+            
+            const data: DonationResponse = await response.json();
+            
+            // Check if we have a valid payment URL
+            if (data.data && data.data.paymentUrl) {
+                // Store donation reference for verification later
+                localStorage.setItem('donationReference', data.data.donation.reference);
+                
+                // Redirect to payment URL
+                window.location.href = data.data.paymentUrl;
+            } else {
+                throw new Error('No payment URL received from server');
+            }
+            
+        } catch (error) {
+            console.error('Donation error:', error);
+            alert('There was an error processing your donation. Please try again.');
+            setIsProcessing(false);
+        }
     }
 
     if (!isOpen) return null;
@@ -96,7 +157,16 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose }) => {
                         <h3 className="text-center mb-5 text-[#4b0082] font-semibold text-lg">Select Donation Amount</h3>
                         <div className="flex flex-wrap gap-4 justify-center mb-8">
                             {DONATION_AMOUNTS.map(value => (
-                                <button type="button" key={value} onClick={() => handleAmountClick(value)} className={`bg-white border-2 rounded-lg px-6 py-3 font-semibold text-[#1a0a2e] cursor-pointer transition-all duration-300 hover:bg-[#880088] hover:text-white hover:border-[#880088] ${amount === value && !customAmount ? 'bg-[#880088] text-white border-[#880088]' : 'border-[#e6e6fa]'}`}>
+                                <button 
+                                    type="button" 
+                                    key={value} 
+                                    onClick={() => handleAmountClick(value)} 
+                                    className={`border-2 rounded-lg px-6 py-3 font-semibold cursor-pointer transition-all duration-300 hover:bg-[#880088] hover:text-white hover:border-[#880088] ${
+                                        amount === value && !customAmount 
+                                            ? 'bg-[#880088] text-white border-[#880088]' 
+                                            : 'bg-white text-[#1a0a2e] border-[#e6e6fa]'
+                                    }`}
+                                >
                                     ₦{value.toLocaleString()}
                                 </button>
                             ))}
@@ -110,16 +180,28 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                             <div className="form-group">
                                 <label htmlFor="fullName" className="block mb-2 font-medium text-[#1a0a2e]">Full Name</label>
-                                <input type="text" id="fullName" name="fullName" required className="w-full p-4 border-2 border-[#e6e6fa] rounded-lg text-base transition-all duration-300 focus:border-[#880088] focus:outline-none"/>
+                                <input type="text" id="fullName" name="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full p-4 border-2 border-[#e6e6fa] rounded-lg text-base transition-all duration-300 focus:border-[#880088] focus:outline-none"/>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email" className="block mb-2 font-medium text-[#1a0a2e]">Email Address</label>
-                                <input type="email" id="email" name="email" required className="w-full p-4 border-2 border-[#e6e6fa] rounded-lg text-base transition-all duration-300 focus:border-[#880088] focus:outline-none"/>
+                                <input type="email" id="email" name="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-4 border-2 border-[#e6e6fa] rounded-lg text-base transition-all duration-300 focus:border-[#880088] focus:outline-none"/>
                             </div>
                         </div>
 
-                        <button type="submit" className="w-full p-4 bg-[linear-gradient(135deg,_#880088_0%,_#4b0082_100%)] text-white border-none rounded-lg text-xl font-semibold cursor-pointer transition-all duration-300 mt-5 shadow-[0_5px_20px_rgba(106,13,173,0.3)] hover:transform hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(106,13,173,0.4)]">
-                            <i className="fas fa-heart"></i> Donate Now
+                        <button 
+                            type="submit" 
+                            disabled={isProcessing}
+                            className={`w-full p-4 bg-[linear-gradient(135deg,_#880088_0%,_#4b0082_100%)] text-white border-none rounded-lg text-xl font-semibold cursor-pointer transition-all duration-300 mt-5 shadow-[0_5px_20px_rgba(106,13,173,0.3)] hover:transform hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(106,13,173,0.4)] ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            {isProcessing ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i> Processing...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-heart"></i> Donate Now
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>

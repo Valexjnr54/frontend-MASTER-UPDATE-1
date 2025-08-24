@@ -7,11 +7,14 @@ import VolunteerPage from './pages/VolunteerPage';
 import LoginPage from './pages/LoginPage';
 import ProjectManagerDashboard from './pages/ProjectManagerDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import UromiBlogPostPage from './pages/UromiBlogPostPage';
+import BlogPostPage from './pages/BlogPostPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ActivitiesThematicPage from './pages/ActivitiesThematicPage';
 import ViewResourcesPage from './pages/ViewResourcesPage';
+import BlogPage from './pages/BlogPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailedPage from './pages/PaymentFailedPage';
 
 const PlaceholderPage = ({ title }: { title: string }) => (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -48,13 +51,16 @@ const App: React.FC = () => {
         }>
           {/* Nested manager routes */}
         </Route>
-        <Route path="/blog/uromi-killings" element={<UromiBlogPostPage />} />
+        <Route path="/blog" element={<BlogPostPage />} />
+        <Route path="/blogs" element={<BlogPage />}/>
         {/* Placeholder routes from nav */}
-  <Route path="/activities" element={<ActivitiesThematicPage />} />
-  <Route path="/resources" element={<PlaceholderPage title="Resources" />} />
-  <Route path="/resources/view" element={<ViewResourcesPage />} />
+        <Route path="/activities" element={<ActivitiesThematicPage />} />
+        <Route path="/resources" element={<PlaceholderPage title="Resources" />} />
+        <Route path="/resources/view" element={<ViewResourcesPage />} />
+        <Route path="/payment-verification" element={<PaymentSuccessPage />} />
+        <Route path="/payment/failed" element={<PaymentFailedPage />} />
         <Route path="/contact" element={<PlaceholderPage title="Contact" />} />
-        <Route path="/blog" element={<PlaceholderPage title="Blog" />} />
+        {/* <Route path="/blog" element={<PlaceholderPage title="Blog" />} /> */}
       </Routes>
     </BrowserRouter>
   );

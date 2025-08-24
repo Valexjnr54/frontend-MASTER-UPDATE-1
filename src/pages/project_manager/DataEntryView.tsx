@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { 
   fetchProjects,
   fetchDataEntries,
@@ -11,8 +11,20 @@ import {
 } from '../../api/project_manager/dataEntryService';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '@/src/utils/alerts';
 import { CustomField, MediaFile, SubmittedData } from '@/src/types';
-import ViewModal from './ViewModal'; // Extract these to separate files
-import EditModal from './EditModal'; // Extract these to separate files
+import ViewModal from './ViewModal';
+import EditModal from './EditModal';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  ColumnDef,
+  flexRender,
+  SortingState,
+  PaginationState,
+  ColumnFiltersState,
+} from '@tanstack/react-table';
 
 interface Project {
   id: string;
@@ -58,6 +70,15 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
+  // Table states
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
   // Fetch projects
   useEffect(() => {
     const loadProjects = async () => {
@@ -96,6 +117,100 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
 
     loadEntries();
   }, []);
+
+  // Define columns for the data table
+  const columns = useMemo<ColumnDef<DataEntry>[]>(
+    () => [
+      {
+        accessorKey: 'project.project_name',
+        header: 'Project',
+        cell: info => info.getValue() || 'N/A',
+      },
+      {
+        accessorKey: 'location',
+        header: 'Location',
+        cell: info => info.getValue(),
+      },
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: info => formatDate(info.getValue() as string),
+      },
+      {
+        id: 'description',
+        header: 'Description',
+        cell: ({ row }) => (
+          <div className="max-w-xs truncate" title={row.original.description}>
+            {row.original.description}
+          </div>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const entry = row.original;
+          return (
+            <div className="relative">
+              <button 
+                onClick={() => toggleDropdown(entry.id)}
+                className="text-purple-600 hover:text-purple-900 text-sm font-medium"
+              >
+                Manage <i className={`fas fa-chevron-${dropdownOpen === entry.id ? 'up' : 'down'} ml-1`}></i>
+              </button>
+              
+              {dropdownOpen === entry.id && (
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleView(entry)}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <i className="fas fa-eye mr-2"></i> View
+                    </button>
+                    <button
+                      onClick={() => handleEdit(entry)}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <i className="fas fa-edit mr-2"></i> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      <i className="fas fa-trash mr-2"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+    ],
+    [dropdownOpen]
+  );
+
+  // Create the table instance
+  const table = useReactTable({
+    data: dataEntries,
+    columns,
+    state: {
+      sorting,
+      pagination,
+      columnFilters,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    pageCount: Math.ceil(dataEntries.length / pagination.pageSize),
+  });
 
   // Retry functions
   const retryFetchProjects = async () => {
@@ -300,50 +415,38 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
     }
   };
 
-  // const handleUpdate = async (updatedEntry: DataEntry) => {
-  //   try {
-  //     const result = await updateDataEntry(updatedEntry.id, updatedEntry);
-  //     setDataEntries(prev => prev.map(entry => entry.id === updatedEntry.id ? result : entry));
-  //     await showSuccessAlert('Updated!', 'The data entry has been updated.');
-  //     return result;
-  //   } catch (error) {
-  //     console.error('Update error:', error);
-  //     throw error;
-  //   }
-  // };
-
-  // Helper functions
   const handleUpdate = async (updatedEntry: DataEntry) => {
-  try {
-    const result = await updateDataEntry(updatedEntry.id, updatedEntry);
-    
-    if (!result?.id) {
-      throw new Error('Invalid response from server');
+    try {
+      const result = await updateDataEntry(updatedEntry.id, updatedEntry);
+      
+      if (!result?.id) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Ensure the project property exists
+      const normalizedEntry: DataEntry = {
+        ...result,
+      };
+
+      setDataEntries(prev => 
+        prev.map(entry => entry.id === updatedEntry.id ? normalizedEntry : entry)
+      );
+
+      await showSuccessAlert('Updated!', 'The data entry has been updated.');
+      setShowEditModal(false);
+      
+      return normalizedEntry;
+    } catch (error) {
+      console.error('Update error:', error);
+      await showErrorAlert(
+        'Update Failed', 
+        error instanceof Error ? error.message : 'Failed to update entry'
+      );
+      throw error;
     }
-
-    // Ensure the project property exists
-    const normalizedEntry: DataEntry = {
-      ...result,
-    };
-
-    setDataEntries(prev => 
-      prev.map(entry => entry.id === updatedEntry.id ? normalizedEntry : entry)
-    );
-
-    await showSuccessAlert('Updated!', 'The data entry has been updated.');
-    setShowEditModal(false);
-    
-    return normalizedEntry;
-  } catch (error) {
-    console.error('Update error:', error);
-    await showErrorAlert(
-      'Update Failed', 
-      error instanceof Error ? error.message : 'Failed to update entry'
-    );
-    throw error;
-  }
-};
+  };
   
+  // Helper functions
   const addField = () => setCustomFields([...customFields, { name: '', value: '' }]);
   
   const removeField = (index: number) => {
@@ -355,10 +458,6 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
     newFields[index][field] = value;
     setCustomFields(newFields);
   };
-
-  // const removeFile = (index: number) => {
-  //   setMediaFiles(prev => prev.filter((_, i) => i !== index));
-  // };
 
   const removeFile = (index: number, type: 'image' | 'video' | 'file') => {
     setMediaFiles(prev => {
@@ -383,7 +482,7 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
 
   return (
     <div className="space-y-8">
-        <div className="bg-white p-8 rounded-xl shadow-md">
+      <div className="bg-white p-8 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold text-[#1a0a2e] mb-6">Project Data Entry</h2>
         <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -672,132 +771,154 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
             </button>
             </div>
         </form>
-        </div>
-         <div className="bg-white p-8 rounded-xl shadow-md">
+      </div>
+      
+      {/* Recent Data Entries Table with Data Table Features */}
+      <div className="bg-white p-8 rounded-xl shadow-md">
         <h2 className="text-2xl font-bold text-[#1a0a2e] mb-6">Recent Data Entries</h2>
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="p-3">Project</th>
-              {/* <th className="p-3">Manager</th> */}
-              <th className="p-3">Location</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loadingEntries ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center">
-                  <div className="flex justify-center items-center">
-                    <i className="fas fa-spinner fa-spin mr-2"></i>
-                    Loading entries...
-                  </div>
-                </td>
-              </tr>
-            ) : entriesError ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center text-red-500">
-                  <div className="flex flex-col items-center">
-                    <p>{entriesError}</p>
-                    <button 
-                      onClick={retryFetchEntries}
-                      className="mt-2 text-purple-600 hover:underline text-sm"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ) : dataEntries.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center text-gray-500">
-                  No data entries found
-                </td>
-              </tr>
-            ) : (
-              dataEntries.map((entry) => (
-                <tr key={entry.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">
-                    <div className="font-medium">{entry.project?.project_name || 'N/A'}</div>
-                    <div className="text-xs text-gray-500 line-clamp-1">
-                      {entry.description}
-                    </div>
-                  </td>
-                  {/* <td className="p-3">
-                    {entry.project.project_manager ? (
-                      <>
-                        <div className="font-medium">{entry.project.project_manager.fullname}</div>
-                        <div className="text-xs text-gray-500">
-                          {entry.project.project_manager.username}
-                        </div>
-                      </>
-                    ) : (
-                      <span className="text-gray-400">N/A</span>
-                    )}
-                  </td> */}
-                  <td className="p-3">{entry.location}</td>
-                  <td className="p-3">{formatDate(entry.date)}</td>
-                  <td className="p-3 relative">
-                    <button 
-                      onClick={() => toggleDropdown(entry.id)}
-                      className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                    >
-                      Manage <i className={`fas fa-chevron-${dropdownOpen === entry.id ? 'up' : 'down'} ml-1`}></i>
-                    </button>
-                    
-                    {dropdownOpen === entry.id && (
-                      <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                        <div className="py-1">
-                          <button
-                            onClick={() => handleView(entry)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            <i className="fas fa-eye mr-2"></i> View
-                          </button>
-                          <button
-                            onClick={() => handleEdit(entry)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            <i className="fas fa-edit mr-2"></i> Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(entry.id)}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                          >
-                            <i className="fas fa-trash mr-2"></i> Delete
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="space-y-8">
-        {/* ... (keep all your existing JSX) */}
         
-        {/* View Modal */}
-        {showViewModal && (
-          <ViewModal 
-            entry={selectedEntry} 
-            onClose={() => setShowViewModal(false)} 
-          />
-        )}
+        {/* Search Input */}
+        <div className="mb-4">
+          <div className="relative max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search entries..."
+              value={globalFilter ?? ''}
+              onChange={e => setGlobalFilter(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500 block w-full sm:text-sm"
+            />
+          </div>
+        </div>
         
-        {/* Edit Modal */}
-        {showEditModal && (
-          <EditModal 
-            entry={selectedEntry} 
-            onClose={() => setShowEditModal(false)} 
-            onUpdate={handleUpdate}
-            projects={projects}
-          />
+        {loadingEntries ? (
+          <div className="p-4 text-center">
+            <div className="flex justify-center items-center">
+              <i className="fas fa-spinner fa-spin mr-2"></i>
+              Loading entries...
+            </div>
+          </div>
+        ) : entriesError ? (
+          <div className="p-4 text-center text-red-500">
+            <div className="flex flex-col items-center">
+              <p>{entriesError}</p>
+              <button 
+                onClick={retryFetchEntries}
+                className="mt-2 text-purple-600 hover:underline text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : dataEntries.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">
+            No data entries found
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <tr key={headerGroup.id} className="bg-gray-100 text-gray-600">
+                      {headerGroup.headers.map(header => (
+                        <th 
+                          key={header.id} 
+                          className="p-3 cursor-pointer select-none"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <div className="flex items-center">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: ' 🔼',
+                              desc: ' 🔽',
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map(row => (
+                    <tr key={row.id} className="border-b hover:bg-gray-50">
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id} className="p-3">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1 text-sm text-gray-700">
+                  <div>Page</div>
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} of{' '}
+                    {table.getPageCount()}
+                  </strong>
+                </span>
+                <select
+                  className="border rounded p-1 text-sm"
+                  value={table.getState().pagination.pageSize}
+                  onChange={e => {
+                    table.setPageSize(Number(e.target.value));
+                  }}
+                >
+                  {[5, 10, 20, 30, 40, 50].map(pageSize => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-3 py-1 text-sm border rounded disabled:opacity-50"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
+      
+      {/* View Modal */}
+      {showViewModal && (
+        <ViewModal 
+          entry={selectedEntry} 
+          onClose={() => setShowViewModal(false)} 
+        />
+      )}
+      
+      {/* Edit Modal */}
+      {showEditModal && (
+        <EditModal 
+          entry={selectedEntry} 
+          onClose={() => setShowEditModal(false)} 
+          onUpdate={handleUpdate}
+          projects={projects}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  ColumnDef,
+  flexRender,
+} from '@tanstack/react-table';
 import apiConfig from '../../config/api';
 
 interface MetadataItem {
@@ -12,7 +20,6 @@ interface ProjectManager {
   username: string;
   email: string;
   status: string;
-  // Add other fields as needed
 }
 
 interface Project {
@@ -53,6 +60,7 @@ const DataView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<DataEntry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,8 +81,6 @@ const DataView: React.FC = () => {
         }
     
         const result = await response.json();
-        
-        // Extract the data array from the response
         const data = result.data;
         
         if (!Array.isArray(data)) {
@@ -103,15 +109,70 @@ const DataView: React.FC = () => {
     setSelectedEntry(null);
   };
 
-//   const getViewerUrl = (url: string) => {
-//   if (url.includes('.pdf')) {
-//     return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-//   }
-//   if (url.match(/\.(docx?|xlsx?|pptx?)$/i)) {
-//     return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
-//   }
-//   return url;
-// };
+  // Define columns
+  const columns = useMemo<ColumnDef<DataEntry>[]>(
+    () => [
+      {
+        accessorKey: 'project.project_name',
+        header: 'Project',
+        cell: ({ row }) => (
+          <div>
+            <div className="font-medium">{row.original.project.project_name}</div>
+            <div className="text-xs text-gray-500 line-clamp-1">
+              {row.original.description}
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'project.project_manager.fullname',
+        header: 'Manager',
+        cell: ({ row }) => (
+          <div>
+            <div className="font-medium">{row.original.project.project_manager.fullname}</div>
+            <div className="text-xs text-gray-500">
+              {row.original.project.project_manager.username}
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'location',
+        header: 'Location',
+      },
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ getValue }) => formatDate(getValue() as string),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <button 
+            onClick={() => handleViewClick(row.original)}
+            className="text-purple-600 hover:text-purple-900 text-sm font-medium"
+          >
+            View
+          </button>
+        ),
+      },
+    ],
+    []
+  );
+
+  // Create table instance
+  const table = useReactTable({
+    data: allData,
+    columns,
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   if (loading) {
     return (
@@ -142,55 +203,109 @@ const DataView: React.FC = () => {
     <div className="bg-white p-6 rounded-xl shadow-md">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-[#1a0a2e]">All Collected Data</h2>
-        <div className="text-sm text-gray-500">
-          Showing {allData.length} entries
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">
+            Showing {table.getFilteredRowModel().rows.length} entries
+          </div>
+          <input
+            type="text"
+            placeholder="Search all columns..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
         </div>
       </div>
       
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="p-3">Project</th>
-              <th className="p-3">Manager</th>
-              <th className="p-3">Location</th>
-              <th className="p-3">Date</th>
-              <th className="p-3">Actions</th>
-            </tr>
+            {table.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id} className="bg-gray-100 text-gray-600">
+                {headerGroup.headers.map(header => (
+                  <th key={header.id} className="p-3">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {allData.map(entry => (
-              <tr key={entry.id} className="border-b hover:bg-gray-50">
-                <td className="p-3">
-                  <div className="font-medium">{entry.project.project_name}</div>
-                  <div className="text-xs text-gray-500 line-clamp-1">
-                    {entry.description}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className="font-medium">{entry.project.project_manager.fullname}</div>
-                  <div className="text-xs text-gray-500">
-                    {entry.project.project_manager.username}
-                  </div>
-                </td>
-                <td className="p-3">{entry.location}</td>
-                <td className="p-3">{formatDate(entry.date)}</td>
-                
-                <td className="p-3">
-                  <button 
-                    onClick={() => handleViewClick(entry)}
-                    className="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                  >
-                    View
-                  </button>
-                </td>
+            {table.getRowModel().rows.map(row => (
+              <tr key={row.id} className="border-b hover:bg-gray-50">
+                {row.getVisibleCells().map(cell => (
+                  <td key={cell.id} className="p-3">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Modal */}
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center gap-2">
+          <button
+            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<<'}
+          </button>
+          <button
+            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {'<'}
+          </button>
+          <button
+            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>'}
+          </button>
+          <button
+            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {'>>'}
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-4 text-sm">
+          <span>
+            Page{' '}
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{' '}
+              {table.getPageCount()}
+            </strong>
+          </span>
+          
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            className="px-2 py-1 border border-gray-300 rounded"
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Modal (unchanged from your original code) */}
       {isModalOpen && selectedEntry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -300,15 +415,6 @@ const DataView: React.FC = () => {
                           </a>
                         </div>
                       )}
-                      {/* {selectedEntry.document_url && (
-                        <div className="mt-4">
-                          <iframe 
-                            src={getViewerUrl(selectedEntry.document_url.replace('/upload/', '/upload/fl_inline/'))}
-                            className="w-full h-96 border rounded-lg"
-                            frameBorder="0"
-                          ></iframe>
-                        </div>
-                      )} */}
                     </div>
                   </div>
                 )}

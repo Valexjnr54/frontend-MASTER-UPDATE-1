@@ -25,7 +25,11 @@ const Sidebar: React.FC<{ activeTab: string; onTabClick: (tab: string) => void }
           { id: 'projects', icon: 'fas fa-project-diagram', label: 'Projects' },
           { id: 'managers', icon: 'fas fa-users', label: 'Project Managers' },
           { id: 'data', icon: 'fas fa-database', label: 'Collected Data' },
-        //   { id: 'settings', icon: 'fas fa-cog', label: 'Settings' }
+          { id: 'donations', icon: 'fas fa-hand-holding-heart', label: 'Donations' },
+          { id: 'categories', icon: 'fas fa-layer-group', label: 'Categories' },
+          { id: 'tags', icon: 'fas fa-tags', label: 'Tags' },
+          { id: 'blogs', icon: 'fas fa-newspaper', label: 'Blog' },
+          { id: 'comments', icon: 'fas fa-comments', label: 'Comments' },
         ].map(item => (
           <li key={item.id} className="mb-1">
             <button
