@@ -30,6 +30,7 @@ const Sidebar: React.FC<{ activeTab: string; onTabClick: (tab: string) => void }
           { id: 'tags', icon: 'fas fa-tags', label: 'Tags' },
           { id: 'blogs', icon: 'fas fa-newspaper', label: 'Blog' },
           { id: 'comments', icon: 'fas fa-comments', label: 'Comments' },
+          { id: 'volunteers', icon: 'fas fa-users', label: 'Volunteers' },
         ].map(item => (
           <li key={item.id} className="mb-1">
             <button

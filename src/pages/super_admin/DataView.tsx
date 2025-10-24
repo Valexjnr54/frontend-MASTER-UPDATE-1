@@ -113,6 +113,14 @@ const DataView: React.FC = () => {
   const columns = useMemo<ColumnDef<DataEntry>[]>(
     () => [
       {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
+      {
         accessorKey: 'project.project_name',
         header: 'Project',
         cell: ({ row }) => (

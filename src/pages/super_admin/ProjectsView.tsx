@@ -62,12 +62,15 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [globalFilter, setGlobalFilter] = useState('');
 
   // Define table columns
-  const columns = useMemo<ColumnDef<Project>[]>(
+   const columns = useMemo<ColumnDef<Project>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 80,
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
       },
       {
         accessorKey: 'project_name',

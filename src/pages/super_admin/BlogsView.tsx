@@ -208,9 +208,12 @@ const BlogsView: React.FC<BlogsViewProps> = ({
   const columns = useMemo<ColumnDef<Blog>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
+        id: 'serialNumber',
+        header: 'S/N',
         size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
       },
       {
         accessorKey: 'title',

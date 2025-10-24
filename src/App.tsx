@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
@@ -15,6 +14,8 @@ import ViewResourcesPage from './pages/ViewResourcesPage';
 import BlogPage from './pages/BlogPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailedPage from './pages/PaymentFailedPage';
+import ScrollToTop from './components/ScrollToTop'; // Import the new component
+import ContactPage from './pages/ContactPage';
 
 const PlaceholderPage = ({ title }: { title: string }) => (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -22,18 +23,17 @@ const PlaceholderPage = ({ title }: { title: string }) => (
     </div>
 );
 
-
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop /> {/* Add the ScrollToTop component here */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact-us" element={<ContactPage />} />
         <Route path="/volunteer" element={<VolunteerPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        {/* <Route path="/project-manager" element={<ProjectManagerDashboard />} />
-        <Route path="/superadmin" element={<SuperAdminDashboard />} /> */}
         {/* Protected Admin Routes */}
         <Route path="/superadmin" element={
           <ProtectedRoute requiredRole="admin">
@@ -60,7 +60,6 @@ const App: React.FC = () => {
         <Route path="/payment-verification" element={<PaymentSuccessPage />} />
         <Route path="/payment/failed" element={<PaymentFailedPage />} />
         <Route path="/contact" element={<PlaceholderPage title="Contact" />} />
-        {/* <Route path="/blog" element={<PlaceholderPage title="Blog" />} /> */}
       </Routes>
     </BrowserRouter>
   );

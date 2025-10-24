@@ -76,9 +76,12 @@ const TagsView: React.FC<TagsViewProps> = ({
   const columns = useMemo<ColumnDef<Tag>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        cell: info => info.getValue(),
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
       },
       {
         accessorKey: 'name',

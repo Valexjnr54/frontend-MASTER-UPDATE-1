@@ -15,6 +15,7 @@ import CommentsView from './super_admin/CommentsView';
 import CategoriesView from './super_admin/CategoriesView';
 import TagsView from './super_admin/TagsView';
 import DonationsView from './super_admin/DonationsView';
+import VolunteerView from './super_admin/VolunteerView';
 
 // Types
 type StatCardProps = {
@@ -142,6 +143,8 @@ useEffect(() => {
         return <TagsView />;
       case 'donations':
         return <DonationsView />
+      case 'volunteers':
+        return <VolunteerView />
       case 'dashboard':
       default:
         return (

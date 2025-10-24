@@ -24,7 +24,7 @@ const impactStories = [
 ];
 
 const thematicAreas: ThematicArea[] = [
-    { id: 1, title: 'Collaborative Work/International Conference', image: ' https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812504/mangu-community_kak3f9.jpg', stories: [{ title: 'LEGASI in collaboration with Global Peace Chain (Pakistan) hosting the 2-day National Peace Conference', icon: 'fas fa-handshake', href: '/blog/uromi-killings' }] },
+    { id: 1, title: 'Collaborative Work/International Conference', image: ' https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812504/mangu-community_kak3f9.jpg', stories: [{ title: 'LEGASI in collaboration with Global Peace Chain (Pakistan) hosting the 2-day National Peace Conference', icon: 'fas fa-handshake', href: '#' }] },
     { id: 2, title: 'Women, Peace and Security (UNSCR 1325)', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812502/DSC_0057_h8kgrh.jpg', stories: [{ title: 'Bege Foundation - Session with Wives of Farmers and Pastoralist', icon: 'fas fa-users', href: '#' }] },
     { id: 3, title: 'In The Media', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812546/supporting_home_xjadub.jpg', stories: [{ title: '2023 Elections: CSOs Call For Women Youths Participation', icon: 'fas fa-tv', href: '#' }] },
     { id: 4, title: 'Women Empowerment', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812552/our_act_r7viq4.jpg', stories: [{ title: 'Women Empowerment for Equitable Development (Weed) Project', icon: 'fas fa-hands-helping', href: '#' }] },
@@ -33,7 +33,7 @@ const thematicAreas: ThematicArea[] = [
 ];
 
 const teamMembers: TeamMember[] = [
-    { name: 'Mrs. Kaltumi Abdulazeez', role: 'Executive Director', image: '/assets/images/team-.jpeg' },
+    { name: 'Mrs. Kaltumi Abdulazeez', role: 'Executive Director', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1756189959/WhatsApp_Image_2025-08-10_at_6.06.20_PM_sadvzi.png' },
     // { name: 'Mr. Aiyelu Timothy', role: 'Programme Manager', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812548/team-member-placeholder_fxse6e.png' },
     // { name: 'Mrs. Hauwa Maaji', role: 'Finance Manager', image: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812548/team-member-placeholder_fxse6e.png' },
 ];
@@ -84,7 +84,6 @@ const HeroSection: React.FC<{ onDonateClick: () => void }> = ({ onDonateClick })
                     <h1 className="font-playfair text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-5 leading-tight shadow-text-md">Welcome to Ladies Empowerment Goals and Support initiative</h1>
                     <p className="text-lg text-white/90 mb-10 max-w-2xl mx-auto">LEGASI is a women-led, community-based NGO empowering conflict-affected communities. We advance Women's/Youth Peace & Security through dialogue, mediation, psychosocial support, and livelihood initiatives.</p>
                     <div className="flex flex-col sm:flex-row gap-5 justify-center">
-                        <button onClick={onDonateClick} className="px-11 py-4 rounded-full font-semibold text-lg bg-white text-[#1a0a2e] shadow-[0_5px_20px_rgba(255,215,0,0.4)] transition-all duration-400 ease-in-out-cubic hover:transform hover:-translate-y-1.5 hover:shadow-[0_8px_25px_rgba(255,215,0,0.6)]">Donate Now</button>
                         <Link to="/about" className="px-11 py-4 rounded-full font-semibold text-lg bg-transparent text-white border-2 border-white transition-all duration-400 ease-in-out-cubic hover:bg-white/10 hover:transform hover:-translate-y-1.5">Learn More</Link>
                     </div>
                 </div>
@@ -221,26 +220,31 @@ const ImpactCarousel: React.FC = () => {
     );
 };
 
-const VideoSection = () => (
-    <section className="relative py-24 px-5 bg-gray-800 overflow-hidden">
-        <video autoPlay muted loop className="absolute z-0 w-auto min-w-full min-h-full max-w-none -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
-            <source src="https://res.cloudinary.com/dnuyqw6o1/video/upload/v1754817623/herosec_q6x7zb.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
-        <div className="absolute inset-0 bg-black/70"></div>
-        <div className="relative z-10 container mx-auto text-center text-white">
-            <AnimatedSection>
-                <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-6">Our Impact in Communities</h2>
-                <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
-                    Witness how LEGASI is transforming lives and building bridges of understanding across Nigeria. This video showcases our community dialogues, empowerment workshops, and the real stories of women whose lives have been changed through our initiatives.
-                </p>
-                <Link to="/about" className="inline-block px-11 py-4 rounded-full font-semibold text-lg bg-white text-[#1a0a2e] shadow-[0_5px_20px_rgba(255,215,0,0.4)] transition-all duration-400 ease-in-out-cubic hover:transform hover:-translate-y-1.5 hover:shadow-[0_8px_25px_rgba(255,215,0,0.6)]">
-                    Join Our Movement
-                </Link>
-            </AnimatedSection>
-        </div>
-    </section>
-);
+const VideoSection: React.FC<{ onDonateClick: () => void }> = ({ onDonateClick }) => {
+    return (
+        <section className="relative py-24 px-5 bg-gray-800 overflow-hidden">
+            <video autoPlay muted loop className="absolute z-0 w-auto min-w-full min-h-full max-w-none -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
+                <source src="https://res.cloudinary.com/dnuyqw6o1/video/upload/v1754817623/herosec_q6x7zb.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+            <div className="absolute inset-0 bg-black/70"></div>
+            <div className="relative z-10 container mx-auto text-center text-white">
+                <AnimatedSection>
+                    <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-6">Our Impact in Communities</h2>
+                    <p className="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+                        Witness how LEGASI is transforming lives and building bridges of understanding across Nigeria. This video showcases our community dialogues, empowerment workshops, and the real stories of women whose lives have been changed through our initiatives.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-5 justify-center">
+                        <button onClick={onDonateClick} className="px-11 py-4 rounded-full font-semibold text-lg bg-white text-[#1a0a2e] shadow-[0_5px_20px_rgba(255,215,0,0.4)] transition-all duration-400 ease-in-out-cubic hover:transform hover:-translate-y-1.5 hover:shadow-[0_8px_25px_rgba(255,215,0,0.6)]">Donate Now</button>
+                        <Link to="/about" className="inline-block px-11 py-4 rounded-full font-semibold text-lg bg-white text-[#1a0a2e] shadow-[0_5px_20px_rgba(255,215,0,0.4)] transition-all duration-400 ease-in-out-cubic hover:transform hover:-translate-y-1.5 hover:shadow-[0_8px_25px_rgba(255,215,0,0.6)]">
+                            Join Our Movement
+                        </Link>
+                    </div>
+                </AnimatedSection>
+            </div>
+        </section>
+    );
+};
 
 const FaqItemComponent: React.FC<{ faq: FaqItem; isOpen: boolean; onClick: () => void }> = ({ faq, isOpen, onClick }) => (
     <div className="bg-white rounded-2xl overflow-hidden mb-5 shadow-lg transition-all duration-300 hover:shadow-xl">
@@ -314,9 +318,9 @@ const HomePage: React.FC = () => {
                                         Kaltumi Abdulazeez is a distinguished peacebuilder, advocate for women’s rights, and the Executive Director of LEGASI. With over 15 years of experience in conflict resolution, mediation, and community development, she has led numerous initiatives empowering women and youth in conflict-affected regions of Nigeria. Kaltumi’s leadership has been instrumental in advancing the Women, Peace, and Security agenda, fostering interfaith dialogue, and promoting psychosocial support for survivors of violence. Her dedication to sustainable peace and inclusive development has earned her national and international recognition. Kaltumi is committed to building resilient communities through dialogue, education, and economic empowerment, inspiring a new generation of leaders dedicated to peace and social justice.
                                     </p>
                                     <div className="flex gap-4 mt-auto justify-center md:justify-start">
-                                        <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fab fa-linkedin"></i></a>
-                                        <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fab fa-twitter"></i></a>
-                                        <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fas fa-envelope"></i></a>
+                                        <a href="https://www.linkedin.com/in/kaltumi-abdulazeez-500124133/" target="_blank" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fab fa-linkedin"></i></a>
+                                        <a href="https://x.com/kaltumia" target="_blank" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fab fa-twitter"></i></a>
+                                        <a href="mailto:kaltumi@legasi.org" target="_blank" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:text-[#880088] hover:-translate-y-1"><i className="fas fa-envelope"></i></a>
                                     </div>
                                 </div>
                             </AnimatedSection>
@@ -324,7 +328,7 @@ const HomePage: React.FC = () => {
                     </div>
                 </section>
                 
-                <VideoSection />
+                <VideoSection onDonateClick={() => setIsModalOpen(true)} />
                 <FaqSection />
 
                 <section className="py-20 bg-[#f8f0ff] text-center">

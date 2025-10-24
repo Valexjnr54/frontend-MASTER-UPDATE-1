@@ -39,7 +39,7 @@ interface Donation {
     card_type?: string;
     fee: number;
     merchant_amount: number;
-  };
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,16 +63,24 @@ const DonationsView = () => {
   useEffect(() => {
     const loadDonations = async () => {
       try {
+        console.log("Starting to fetch donations...");
         const [donationsData, statsData] = await Promise.all([
           fetchDonations(),
           fetchDonationStats(),
         ]);
+        
+        console.log("Donations data:", donationsData);
+        console.log("Stats data:", statsData);
+        
         setDonations(donationsData);
         setStats(statsData);
+        
       } catch (error: any) {
+        console.error("Fetch error:", error);
         showErrorAlert("Error!", "Failed to fetch donations or stats. Please try again.");
       } finally {
         setLoading(false);
+        console.log("Loading completed");
       }
     };
 
@@ -82,6 +90,14 @@ const DonationsView = () => {
   // Define columns for the table
   const columns = useMemo<ColumnDef<Donation>[]>(
     () => [
+      {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
       {
         accessorKey: "fullName",
         header: "Donor Name",
@@ -126,7 +142,7 @@ const DonationsView = () => {
         header: "Payment Method",
         cell: ({ row }) => {
           const paymentData = row.original.paymentData;
-          return <div>{paymentData.transaction_type}</div>;
+          return <div>{paymentData ? paymentData.transaction_type : "N/A"}</div>;
         },
       },
       {
@@ -178,10 +194,32 @@ const DonationsView = () => {
         <p className="text-gray-600 mt-2">Track and manage all donations in one place</p>
       </div>
 
-      {/* Loading / Error States */}
-      {loading && <p className="text-gray-600">Loading donations...</p>}
+      {/* Debug info */}
+      {/* <div className="bg-white p-6 rounded-xl shadow-md">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Debug Info</h2>
+        <pre className="text-sm">
+          Loading: {loading ? "true" : "false"}
+          Donations count: {donations?.length || 0}
+          Stats: {stats ? "loaded" : "null"}
+        </pre>
+      </div> */}
 
-      {!loading && (
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-600 text-lg">Loading donations...</p>
+        </div>
+      )}
+
+      {/* No Data State */}
+      {!loading && donations.length === 0 && (
+        <div className="bg-white p-6 rounded-xl shadow-md text-center">
+          <p className="text-gray-600">No donations found.</p>
+        </div>
+      )}
+
+      {/* Data Loaded State */}
+      {!loading && donations.length > 0 && (
         <>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -391,7 +429,7 @@ const DonationsView = () => {
                       <div>
                         <p className="text-sm text-gray-500">Payment Method</p>
                         <p className="font-medium">
-                          {selectedDonation.paymentData.transaction_type}
+                          {selectedDonation.paymentData ? selectedDonation.paymentData.transaction_type : "N/A"}
                         </p>
                       </div>
                       <div>

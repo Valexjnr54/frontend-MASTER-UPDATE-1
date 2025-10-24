@@ -10,10 +10,10 @@ const Footer: React.FC = () => {
                     <h3 className="text-2xl mb-6 pb-2.5 relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-[#880088]">LEGASI</h3>
                     <p className="text-gray-400">Promoting peaceful co-existence through community dialogue, advocacy, and socio-economic empowerment in Nigeria.</p>
                     <div className="flex gap-4 mt-5">
-                        <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-facebook-f"></i></a>
-                        <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-twitter"></i></a>
-                        <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-instagram"></i></a>
-                        <a href="#" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.facebook.com/legasiNG" target="_blank" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/legasiNG" target="_blank" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/legasi_ng" target="_blank" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/legasi-org" target="_blank" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-lg transition-all duration-300 hover:bg-white hover:text-[#1a0a2e] hover:-translate-y-1"><i className="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
 
@@ -23,17 +23,17 @@ const Footer: React.FC = () => {
                         <li className="mb-4"><Link to="/" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Home</Link></li>
                         <li className="mb-4"><Link to="/about" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> About Us</Link></li>
                         <li className="mb-4"><Link to="/activities" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Our Activities</Link></li>
-                        <li className="mb-4"><Link to="/blog" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Blog</Link></li>
+                        <li className="mb-4"><Link to="/blogs" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Blog</Link></li>
                     </ul>
                 </div>
 
                 <div className="footer-col">
                     <h3 className="text-2xl mb-6 pb-2.5 relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-[#880088]">What We Do</h3>
                     <ul className="list-none">
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Community Dialogue</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Trauma Counseling</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Economic Empowerment</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Advocacy</a></li>
+                        <li className="mb-4"><a className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Community Dialogue</a></li>
+                        <li className="mb-4"><a className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Trauma Counseling</a></li>
+                        <li className="mb-4"><a className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Economic Empowerment</a></li>
+                        <li className="mb-4"><a className="text-gray-400 hover:text-white hover:pl-1.5 transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-chevron-right text-white text-xs"></i> Advocacy</a></li>
                     </ul>
                 </div>
                 
@@ -41,9 +41,9 @@ const Footer: React.FC = () => {
                     <h3 className="text-2xl mb-6 pb-2.5 relative text-white after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-12 after:h-0.5 after:bg-[#880088]">Contact</h3>
                     <ul className="list-none">
                         <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white transition-all duration-300 flex items-start gap-2.5"><i className="fas fa-map-marker-alt text-white mt-1"></i> Almara Centre - 22B, Kanta Road, off Independence Way, Kaduna North, NIGERIA</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-phone-alt text-white"></i> +234 815 142 1551</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-envelope text-white"></i> info@legasi.org</a></li>
-                        <li className="mb-4"><a href="#" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-globe text-white"></i> www.legasi.org</a></li>
+                        <li className="mb-4"><a href="tel:+2348151421551" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-phone-alt text-white"></i> +234 815 142 1551</a></li>
+                        <li className="mb-4"><a href="mailto:info@legasi.org" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-envelope text-white"></i> info@legasi.org</a></li>
+                        <li className="mb-4"><a href="https://legasi.org" className="text-gray-400 hover:text-white transition-all duration-300 flex items-center gap-2.5"><i className="fas fa-globe text-white"></i> www.legasi.org</a></li>
                     </ul>
                 </div>
             </div>

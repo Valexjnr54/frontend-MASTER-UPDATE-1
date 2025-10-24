@@ -493,7 +493,7 @@ const BlogPostPage: React.FC = () => {
                                                     img={post.cover_image || "https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812551/youth_handbook_cover_ukabrk.jpg"}
                                                     title={post.title}
                                                     desc={post.excerpt}
-                                                    link={`/blog-post?slug=${post.slug}`}
+                                                    link={`/blog?slug=${post.slug}`}
                                                 />
                                             ))
                                         ) : (

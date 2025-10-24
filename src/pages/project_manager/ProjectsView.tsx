@@ -57,6 +57,14 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, currentManager })
   const columns = useMemo<ColumnDef<Project>[]>(
     () => [
       {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
+      {
         accessorKey: 'project_name',
         header: 'Project Name',
         cell: info => info.getValue(),

@@ -16,7 +16,7 @@ const navLinks: NavLink[] = [
             { label: 'Download Resources', href: '/resources/download' },
         ],
     },
-    { label: 'Contact', href: '/about#contact' },
+    { label: 'Contact', href: '/contact-us' },
 ];
 
 const NavItem: React.FC<{ link: NavLink; onClick: () => void, textColor: string }> = ({ link, onClick, textColor }) => {

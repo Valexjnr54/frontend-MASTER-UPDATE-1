@@ -44,9 +44,12 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({
   const columns = useMemo<ColumnDef<Category>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 80,
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
       },
       {
         accessorKey: 'name',

@@ -1,7 +1,7 @@
 // API configuration constants
-// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.legasi.org/api/v1';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.legasi.org/api/v1';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:7000/api/v1';
+// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:7000/api/v1';
 
 export default {
   BASE_URL: API_BASE_URL,
@@ -57,6 +57,9 @@ export default {
         APPROVED_COMMENTS: '/admin/approved-comments',
         PENDING_COMMENTS: '/admin/pending-comment',
 
+        GET_VOLUNTEERS: '/admin/all-volunteers',
+        UPDATE_VOLUNTEER: '/admin/approve-volunteer',
+
 
         ALL_DATA_ENTRIES: '/admin/datas',
         DATA_ENTRY: '/admin/data',
@@ -87,7 +90,9 @@ export default {
       FETCH_COMMENT: '/fetch-comment',
       RELATED_POSTS: '/related-post',
       DONATION: '/donations',
-      VERIFY_DONATION: '/donations/verify'
+      VERIFY_DONATION: '/donations/verify',
+      SUBMIT_CONTACT_FORM: '/contact-us',
+      ADD_VOLUNTEER: '/add-volunteer-member',
     }
   },
   DEFAULT_ERROR_MESSAGE: 'An unexpected error occurred. Please try again.',

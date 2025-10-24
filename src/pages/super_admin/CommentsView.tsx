@@ -75,6 +75,14 @@ const CommentsView: React.FC = () => {
   const columns = useMemo<ColumnDef<Comment>[]>(
     () => [
       {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
+      {
         accessorKey: "author",
         header: "Author",
         cell: (info) => info.getValue(),

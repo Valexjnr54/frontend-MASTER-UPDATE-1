@@ -157,7 +157,7 @@ const AboutPage: React.FC = () => {
                     </div>
                 </section>
                 
-                <section id="contact" className="py-24 px-5 bg-[linear-gradient(135deg,_#f0e6ff_0%,_#e6d6ff_100%)]">
+                {/* <section id="contact" className="py-24 px-5 bg-[linear-gradient(135deg,_#f0e6ff_0%,_#e6d6ff_100%)]">
                     <div className="container mx-auto">
                         <SectionTitle title="Contact Us" subtitle="Get in touch with our team for inquiries, partnerships, or support" />
                         <div className="flex flex-wrap gap-8 justify-center">
@@ -180,7 +180,7 @@ const AboutPage: React.FC = () => {
                             </AnimatedSection>
                         </div>
                     </div>
-                </section>
+                </section> */}
             </main>
             <Footer/>
         </div>

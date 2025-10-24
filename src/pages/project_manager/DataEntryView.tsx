@@ -11,8 +11,6 @@ import {
 } from '../../api/project_manager/dataEntryService';
 import { showConfirmationAlert, showErrorAlert, showSuccessAlert } from '@/src/utils/alerts';
 import { CustomField, MediaFile, SubmittedData } from '@/src/types';
-import ViewModal from './ViewModal';
-import EditModal from './EditModal';
 import {
   useReactTable,
   getCoreRowModel,
@@ -28,9 +26,9 @@ import {
 
 interface Project {
   id: string;
+  name: string;
   project_name: string;
   project_manager_id?: string;
-  // Add other project properties as needed
 }
 
 interface DataEntry {
@@ -43,7 +41,7 @@ interface DataEntry {
   video_url: string;
   document_url: string;
   metadata: CustomField[];
-  project?: Project; // Make it optional if not always present
+  project?: Project;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -69,6 +67,13 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // File size limits in bytes (5MB for images, 50MB for videos, 10MB for documents)
+  const FILE_SIZE_LIMITS = {
+    image: 5 * 1024 * 1024, // 5MB
+    video: 5 * 1024 * 1024, // 5MB
+    file: 5 * 1024 * 1024, // 5MB
+  };
 
   // Table states
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -121,6 +126,14 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
   // Define columns for the data table
   const columns = useMemo<ColumnDef<DataEntry>[]>(
     () => [
+      {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
       {
         accessorKey: 'project.project_name',
         header: 'Project',
@@ -242,10 +255,26 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
     }
   };
 
-  // File handling
+  // File handling with size validation
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'file') => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files) as File[];
+      
+      // Check file sizes
+      const oversizedFiles = files.filter(file => file.size > FILE_SIZE_LIMITS[type]);
+      if (oversizedFiles.length > 0) {
+        const fileTypeName = type.charAt(0).toUpperCase() + type.slice(1);
+        const maxSizeMB = FILE_SIZE_LIMITS[type] / (1024 * 1024);
+        
+        await showErrorAlert(
+          'File Too Large', 
+          `${fileTypeName} files cannot exceed ${maxSizeMB}MB. Please choose smaller files.`
+        );
+        
+        // Clear the file input
+        e.target.value = '';
+        return;
+      }
       
       const newFiles = files.map(file => ({
         file,
@@ -298,6 +327,13 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
         }
       }
     }
+  };
+
+  // Format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   // Form submission
@@ -480,6 +516,226 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // View Modal Component
+  const ViewModal = ({ entry, onClose }: { entry: DataEntry | null, onClose: () => void }) => {
+    if (!entry) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold">Data Entry Details</h3>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-xl"
+            >
+              &times;
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-semibold">Project:</p>
+                <p>{entry.project?.project_name || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Date:</p>
+                <p>{formatDate(entry.date)}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Location:</p>
+                <p>{entry.location}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p className="font-semibold">Description:</p>
+              <p className="whitespace-pre-line">{entry.description}</p>
+            </div>
+            
+            {entry.metadata && entry.metadata.length > 0 && (
+              <div>
+                <p className="font-semibold mb-2">Custom Fields:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {entry.metadata.map((field, index) => (
+                    <div key={index} className="bg-gray-50 p-2 rounded">
+                      <p className="text-sm font-medium">{field.name}</p>
+                      <p className="text-sm">{field.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-6 text-right">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Edit Modal Component
+  const EditModal = ({ 
+    entry, 
+    onClose, 
+    onUpdate,
+    projects 
+  }: { 
+    entry: DataEntry | null; 
+    onClose: () => void; 
+    onUpdate: (entry: DataEntry) => Promise<DataEntry>;
+    projects: Project[];
+  }) => {
+    const [formData, setFormData] = useState({
+      project_id: entry?.project_id || '',
+      date: entry?.date.split('T')[0] || new Date().toISOString().split('T')[0],
+      location: entry?.location || '',
+      description: entry?.description || '',
+    });
+    const [updating, setUpdating] = useState(false);
+
+    useEffect(() => {
+      if (entry) {
+        setFormData({
+          project_id: entry.project_id,
+          date: entry.date.split('T')[0],
+          location: entry.location,
+          description: entry.description,
+        });
+      }
+    }, [entry]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!entry) return;
+      
+      setUpdating(true);
+      try {
+        const updatedEntry: DataEntry = {
+          ...entry,
+          project_id: formData.project_id,
+          date: formData.date,
+          location: formData.location,
+          description: formData.description,
+        };
+        
+        await onUpdate(updatedEntry);
+      } catch (error) {
+        console.error('Error updating entry:', error);
+      } finally {
+        setUpdating(false);
+      }
+    };
+
+    if (!entry) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold">Edit Data Entry</h3>
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-xl"
+            >
+              &times;
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block mb-1 font-medium">Project</label>
+                <select
+                  name="project_id"
+                  value={formData.project_id}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded"
+                  required
+                >
+                  <option value="">Select Project</option>
+                  {projects.map(project => (
+                    <option key={project.id} value={project.id}>
+                      {project.name || project.project_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block mb-1 font-medium">Location</label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block mb-1 font-medium">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={updating}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
+              >
+                {updating ? 'Updating...' : 'Update Entry'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       <div className="bg-white p-8 rounded-xl shadow-md">
@@ -513,7 +769,7 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                     ) : (
                     projects.map(project => (
                         <option key={project.id} value={project.id}>
-                        {project.name}
+                        {project.name || project.project_name}
                         </option>
                     ))
                     )}
@@ -556,6 +812,9 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label className="block mb-2 font-semibold">Image Upload</label>
+                <div className="mb-1 text-sm text-gray-500">
+                  Max size: {FILE_SIZE_LIMITS.image / (1024 * 1024)}MB
+                </div>
                 <div 
                 onClick={() => {
                     if (imageInputRef.current) {
@@ -568,10 +827,10 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                 <i className="fas fa-image text-3xl text-gray-400"></i>
                 <p>Upload Image</p>
                 <input 
-                    type="file"  // Always use type="file"
+                    type="file"
                     ref={imageInputRef} 
                     onChange={(e) => handleFileChange(e, 'image')} 
-                    accept="image/*"  // Use accept to specify image files
+                    accept="image/*"
                     className="hidden"
                 />
                 </div>
@@ -588,11 +847,16 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                             onError={(e) => {
                                 // Fallback if image fails to load
                                 const target = e.target as HTMLImageElement;
-                                target.src = '/fallback-image.png';
+                                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAxM0wyMy41IDE3LjVMMjYgMTQuNUwyOS41IDE5SDExTDE1IDE0TDE3LjUgMTdMMjAgMTNaIiBmaWxsPSIjOUE5QTlBIi8+CjxjaXJjbGUgY3g9IjE1LjUiIGN5PSIxMy41IiByPSIxLjUiIGZpbGw9IiM5QTlBOUEiLz4KPC9zdmc+';
                             }}
                             />
                         )}
-                        <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                            <span className="text-xs text-gray-500">
+                            {formatFileSize(file.file.size)}
+                            </span>
+                        </div>
                         </div>
                     <div className="flex items-center gap-2">
                         {file.uploading && (
@@ -618,6 +882,9 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
             </div>
             <div>
                 <label className="block mb-2 font-semibold">Video Upload</label>
+                <div className="mb-1 text-sm text-gray-500">
+                  Max size: {FILE_SIZE_LIMITS.video / (1024 * 1024)}MB
+                </div>
                 <div 
                 onClick={() => {
                     if (videoInputRef.current) {
@@ -630,10 +897,10 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                 <i className="fas fa-video text-3xl text-gray-400"></i>
                 <p>Upload Video</p>
                     <input 
-                        type="file"  // Always use type="file"
+                        type="file"
                         ref={videoInputRef} 
                         onChange={(e) => handleFileChange(e, 'video')} 
-                        accept="video/*"  // Use accept to specify video files
+                        accept="video/*"
                         className="hidden"
                     />
                 </div>
@@ -642,7 +909,12 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                     <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <div className="flex items-center gap-2">
                         <i className="fas fa-video text-gray-400"></i>
-                        <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                            <span className="text-xs text-gray-500">
+                            {formatFileSize(file.file.size)}
+                            </span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {file.uploading && (
@@ -668,6 +940,9 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
             </div>
             <div>
                 <label className="block mb-2 font-semibold">File Upload</label>
+                <div className="mb-1 text-sm text-gray-500">
+                  Max size: {FILE_SIZE_LIMITS.file / (1024 * 1024)}MB
+                </div>
                 <div 
                 onClick={() => {
                     if (fileInputRef.current) {
@@ -683,7 +958,7 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                     type="file" 
                     ref={fileInputRef} 
                     onChange={(e) => handleFileChange(e, 'file')} 
-                    accept="*/*"  // Accept any file type
+                    accept="*/*"
                     className="hidden"
                     />
                 </div>
@@ -692,7 +967,12 @@ const DataEntryView: React.FC<{ addSubmission: (submission: SubmittedData) => vo
                     <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <div className="flex items-center gap-2">
                         <i className="fas fa-file text-gray-400"></i>
-                        <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm truncate max-w-xs">{file.file.name}</span>
+                            <span className="text-xs text-gray-500">
+                            {formatFileSize(file.file.size)}
+                            </span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {file.uploading && (

@@ -79,6 +79,14 @@ const ManagersView: React.FC<{
   const columns = useMemo<ColumnDef<ProjectManager>[]>(
     () => [
       {
+        id: 'serialNumber',
+        header: 'S/N',
+        size: 60,
+        cell: ({ row }) => (
+          <div className="text-center">{row.index + 1}</div>
+        ),
+      },
+      {
         accessorKey: 'fullname',
         header: 'Name',
         cell: ({ row }) => <div className="p-3">{row.original.fullname}</div>,

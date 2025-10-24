@@ -145,3 +145,16 @@ export interface Blog {
   tag?: Tag;
   comments?: Comment[];
 }
+
+export interface VolunteerApplication {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  interests: string;
+  motivation: string;
+  approved: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
