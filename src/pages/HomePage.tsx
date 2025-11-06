@@ -44,6 +44,7 @@ const partners = [
     { name: 'World Connect', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418839/WhatsApp_Image_2025-11-06_at_7.20.58_AM_gzcpro.jpg' },
     { name: 'ALN', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418838/WhatsApp_Image_2025-11-06_at_7.21.47_AM_wjgtyd.jpg' },
     { name: 'IMatter', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418837/WhatsApp_Image_2025-11-06_at_7.28.00_AM_z0jwn7.jpg' },
+    { name: 'Peace Direct', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812507/partner7_fjy0f9.jpg' },
 ];
 
 const faqData: FaqItem[] = [
