@@ -39,11 +39,11 @@ const teamMembers: TeamMember[] = [
 ];
 
 const partners = [
-    { name: 'USAID', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812506/partner1_zzvo1v.jpg' },
-    { name: 'World Bank', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812506/partner2_iydrha.jpg' },
-    { name: 'United Nations', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812506/partner4_iv7hon.jpg' },
-    { name: 'Gates Foundation', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812507/partner6_l7m667.jpg' },
-    { name: 'UNDP', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1754812507/partner7_fjy0f9.jpg' },
+    { name: 'OXFAM', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418843/WhatsApp_Image_2025-11-06_at_7.17.05_AM_spmk5z.jpg' },
+    { name: 'KAICIID', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418841/WhatsApp_Image_2025-11-06_at_7.19.24_AM_dq2nfv.jpg' },
+    { name: 'World Connect', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418839/WhatsApp_Image_2025-11-06_at_7.20.58_AM_gzcpro.jpg' },
+    { name: 'ALN', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418838/WhatsApp_Image_2025-11-06_at_7.21.47_AM_wjgtyd.jpg' },
+    { name: 'IMatter', logo: 'https://res.cloudinary.com/dnuyqw6o1/image/upload/v1762418837/WhatsApp_Image_2025-11-06_at_7.28.00_AM_z0jwn7.jpg' },
 ];
 
 const faqData: FaqItem[] = [
@@ -135,7 +135,7 @@ const AboutSection: React.FC = () => {
                     </AnimatedSection>
                     <AnimatedSection className="flex-1 min-w-[300px] max-w-xl">
                         <h3 className="text-4xl mb-6 text-[#4b0082] font-playfair">Our Journey Towards Empowerment</h3>
-                        <p className="text-lg leading-relaxed mb-5 text-gray-700">LEGASI (Ladies Empowerment Goals and Support Initiative) was founded in 2010 with a mission to empower women and promote peace in conflict-affected communities across Nigeria. Our organization emerged as a response to the increasing violence and discrimination faced by women in northern Nigeria.</p>
+                        <p className="text-lg leading-relaxed mb-5 text-gray-700">Ladies Empowerment Goals and Support Initiative (LEGASI) began its journey in 2013 with a simple yet powerful mission, to empower women and promote peace in communities affected by conflict across Nigeria. What started as a local effort to support women facing violence and discrimination soon grew into a movement of hope and resilience. In 2017, LEGASI was officially registered with the Corporate Affairs Commission (CAC), marking a new chapter in its commitment to advancing gender equality, inclusion, and peacebuilding. Rooted in northern Nigeria, the organization continues to stand with vulnerable groups, fostering protection, empowerment, and sustainable development for women, girls, and marginalized communities across the country.</p>
                         <p className="text-lg leading-relaxed mb-8 text-gray-700">Over the past decade, we've grown from a small community initiative to a nationally recognized organization with programs in 12 states. Our approach combines grassroots engagement with evidence-based strategies to address the root causes of conflict and inequality.</p>
                         <div className="text-center md:text-left">
                              <Link to="/about" className="inline-block px-8 py-3.5 bg-[#880088] text-white rounded-full font-semibold text-base transition-all duration-400 ease-in-out-cubic shadow-[0_5px_15px_rgba(106,13,173,0.3)] hover:bg-[#4b0082] hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(106,13,173,0.4)]">Read More About Us</Link>

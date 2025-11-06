@@ -95,8 +95,8 @@ const AboutPage: React.FC = () => {
                             <AnimatedSection className="flex-1 min-w-[300px] max-w-xl">
                                 <h3 className="text-4xl mb-6 text-[#4b0082] font-playfair">Our Story</h3>
                                 <p className="text-lg leading-relaxed mb-5 text-gray-700">LEGASI established in 2017 has focused its works in 2 states of Nigeria (Kaduna and Plateau States) working in 7 LGAs and 6 LGAs in both Kaduna and Plateau States respectively with a total of 15 intervening communities.</p>
-                                <p className="text-lg leading-relaxed mb-5 text-gray-700">The rationale behind taking few states at a time is to focus on depth rather than the breadth to fast-track actualizing of LEBASI’s vision and mission under a resource-constrained environment.</p>
-                                <p className="text-lg leading-relaxed text-gray-700">The coverage areas by LEGASI are informed and will always be guided by community entry to establish the felt needs of the women and youths on issues related to peace development, the glaring absence of government’s interventions, and lowly progress in LEBASI’s result areas defined by the performance indicators in the results framework.</p>
+                                <p className="text-lg leading-relaxed mb-5 text-gray-700">The rationale behind taking few states at a time is to focus on depth rather than the breadth to fast-track actualizing of LEGASI’s vision and mission under a resource-constrained environment.</p>
+                                <p className="text-lg leading-relaxed text-gray-700">The coverage areas by LEGASI are informed and will always be guided by community entry to establish the felt needs of the women and youths on issues related to peace development, the glaring absence of government’s interventions, and lowly progress in LEGASI’s result areas defined by the performance indicators in the results framework.</p>
                             </AnimatedSection>
                         </div>
                     </div>
@@ -135,12 +135,13 @@ const AboutPage: React.FC = () => {
                         <SectionTitle title="Our Journey" subtitle="Key milestones in LEGASI's history of impact" />
                         <div className="relative wrap overflow-hidden p-10 h-full max-w-5xl mx-auto">
                             <div className="border-2-2 absolute border-opacity-20 border-purple-300 h-full border left-1/2"></div>
-                            <TimelineItem date="2010" title="Foundation Established" align="left">LEGASI was founded in Kaduna by Mrs. Kaltumi Abdulazeez with a small team of 5 volunteers, initially focusing on women's education and health.</TimelineItem>
-                            <TimelineItem date="2013" title="First Peace Dialogue" align="right">We facilitated our first interfaith community dialogue in Kaduna, bringing together 50 women from Christian and Muslim communities.</TimelineItem>
-                            <TimelineItem date="2015" title="Expansion to Plateau State" align="left">With funding from our first major grant, we expanded operations to Plateau State, establishing our signature Women's Peace Councils program.</TimelineItem>
-                            <TimelineItem date="2018" title="National Recognition" align="right">Our work was recognized with the National Peacebuilding Award, leading to partnerships with 5 additional states.</TimelineItem>
-                            <TimelineItem date="2021" title="Youth Program Launch" align="left">We launched our Youth Peace Ambassadors program, training young leaders in conflict resolution and mediation skills.</TimelineItem>
-                            <TimelineItem date="2024" title="Current Reach" align="right">Today, LEGASI operates in 12 states, has directly impacted over 50,000 lives, and continues to expand its innovative programs.</TimelineItem>
+                            <TimelineItem date="2013" title="Operations Begin" align="left">LEGASI began active operations in Kaduna, initiating small community outreach programs focused on women’s empowerment, peacebuilding, and protection.</TimelineItem>
+                            <TimelineItem date="2014" title="First Peace Dialogue" align="right">LEGASI facilitated its first interfaith community dialogue in Kaduna, bringing together women from Christian and Muslim communities to address rising tensions and promote peaceful coexistence.</TimelineItem>
+                            <TimelineItem date="2015" title="Expansion to Plateau State" align="left">With support from its first major project funding, LEGASI expanded operations to Plateau State and launched its Women’s Peace Councils program.</TimelineItem>
+                            <TimelineItem date="2017" title="Official CAC Registration" align="right">LEGASI was formally registered with the Corporate Affairs Commission (CAC), strengthening its institutional structure and enabling broader partnerships and program growth.</TimelineItem>
+                            <TimelineItem date="2018" title="National Recognition" align="left">LEGASI received national recognition for its peacebuilding work, leading to partnerships across several additional states.</TimelineItem>
+                            <TimelineItem date="2021" title="Youth Program Launch" align="right">The Youth Peace Ambassadors program was introduced to train young leaders in conflict resolution, mediation, and community engagement.</TimelineItem>
+                            <TimelineItem date="2024" title="Current Reach" align="left">LEGASI now operates in Kaduna, Plateau, Abuja, and Kogi states, respectively, and has correspondingly impacted more than 50,000 people. The organization continues to expand its innovative peacebuilding and empowerment programs.</TimelineItem>
                         </div>
                     </div>
                 </section>
